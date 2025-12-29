@@ -1,0 +1,83 @@
+[project]
+name = "watch-camera"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "dotenv>=0.9.9",
+    "fastapi[standard]>=0.128.0",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.12.0",
+    "opencv-python>=4.12.0.88; sys_platform == 'darwin'",
+    "picamera2>=0.1.0; sys_platform == 'linux'",
+    "aiohttp>=3.13.2",
+    "opencv-python>=4.12.0.88",
+    "loguru>=0.7.3",
+]
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.407",
+    "ruff>=0.14.10",
+]
+
+[tool.uv]
+environments = [
+    "sys_platform == 'darwin'",
+    "sys_platform == 'linux'"
+]
+
+[tool.pyright]
+# Include and exclude paths
+include = ["backend"]
+
+# Python version
+pythonVersion = "3.12"
+
+# Type checking mode: "off", "basic", "standard", "strict"
+typeCheckingMode = "standard"
+
+# Report settings
+reportMissingImports = true
+reportMissingTypeStubs = false
+reportUnusedImport = "warning"
+reportUnusedClass = "warning"
+reportUnusedFunction = "warning"
+reportUnusedVariable = "warning"
+reportDuplicateImport = "warning"
+reportOptionalSubscript = "warning"
+reportOptionalMemberAccess = "warning"
+reportOptionalCall = "warning"
+reportOptionalIterable = "warning"
+reportOptionalContextManager = "warning"
+reportOptionalOperand = "warning"
+reportGeneralTypeIssues = "warning"
+reportIncompatibleMethodOverride = "warning"
+reportIncompatibleVariableOverride = "warning"
+reportInconsistentConstructor = "warning"
+reportInvalidStringEscapeSequence = "warning"
+reportUnknownMemberType = "warning"
+reportUnknownArgumentType = "warning"
+reportUnknownVariableType = "warning"
+reportUnknownLambdaType = "warning"
+reportUntypedFunctionDecorator = "warning"
+reportUntypedClassDecorator = "warning"
+reportUntypedBaseClass = "warning"
+reportUntypedNamedTuple = "warning"
+reportPrivateUsage = "warning"
+reportConstantRedefinition = "warning"
+reportOverlappingOverload = "error"
+
+# Pydantic-specific settings
+reportCallInDefaultInitializer = false
+reportPrivateImportUsage = "warning"
+
+[tool.ruff]
+# Enable import sorting
+select = ["I"]
+fixable = ["I"]
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+known-first-party = ["backend"]
+force-single-line = false
+split-on-trailing-comma = true
