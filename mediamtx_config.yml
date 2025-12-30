@@ -719,6 +719,7 @@ pathDefaults:
   # * G1, G2, ...: regular expression groups, if path name is
   #   a regular expression.
   runOnRead:
+  
   # Restart the command if it exits.
   runOnReadRestart: no
   # Command to run when a client stops reading.

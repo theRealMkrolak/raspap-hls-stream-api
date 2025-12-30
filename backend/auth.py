@@ -5,6 +5,7 @@ from starlette.status import HTTP_403_FORBIDDEN
 
 from .settings import settings
 
+
 api_key_header = APIKeyHeader(name="access_token", auto_error=False)
 
 async def get_api_key(
@@ -13,13 +14,13 @@ async def get_api_key(
 ) -> str:
     # Check cookie first (for browser), then header (for API clients)
     provided_key = access_token or api_key_header
-    
+
     if provided_key is None:
         raise HTTPException(
             status_code=HTTP_403_FORBIDDEN, detail="403: Unauthorized"
         )
-    
-    if provided_key == settings.api_key:
+
+    if provided_key == settings.raspap_api_key:
         return provided_key
     else:
         raise HTTPException(
