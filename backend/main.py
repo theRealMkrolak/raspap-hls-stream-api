@@ -10,35 +10,49 @@ from .camera import router as camera_router
 from .settings import settings
 
 
-async def get_lastest_frame(app: FastAPI) -> None:
-    try:
-        video_capture: VideoCapture = app.state.video_capture
-        while True:
-            ret, frame = video_capture.read()
-            if not ret:
-                break
-            app.state.latest_frame = frame
-            await asyncio.sleep(0.0001)
-    except asyncio.CancelledError:
-        pass
+async def background_task(app: FastAPI):
+    """
+    Background task that runs in the background.
+    """
+    while True:
+        # We wrap the blocking read in a task and shield it.
+        # This allows us to wait for the thread to finish even if we are cancelled.
+        # This is CRITICAL to avoid a race condition where release() is called
+        # while read() is still executing in a thread (causing a segfault).
+        read_task = asyncio.create_task(asyncio.to_thread(app.state.video_capture.read))
+        try:
+            ret, frame = await asyncio.shield(read_task)
+        except asyncio.CancelledError:
+            await read_task
+            raise
+
+        if not ret and frame is None:
+            break
+
+        app.state.last_frame = frame
+        await asyncio.sleep(0.01)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
     Creates and manages the aiohttp ClientSession and background tasks for the application lifespan.
     """
-    video_capture = VideoCapture(f"{settings.mediamtx_hls_url}/index.m3u8")
-    app.state.video_capture = video_capture
-
-    app.state.latest_frame = None
-    get_latest_frame_task = asyncio.create_task(get_lastest_frame(app))
+    app.state.video_capture = VideoCapture(f"{settings.mediamtx_hls_url}/index.m3u8")
+    app.state.last_frame = None
 
     async with ClientSession(raise_for_status=True) as session:
         app.state.client_session = session
+        app.state.background_task = asyncio.create_task(background_task(app))
         yield
         await session.close()
+
+    app.state.background_task.cancel()
+    try:
+        await app.state.background_task
+    except asyncio.CancelledError:
+        pass
     app.state.video_capture.release()
-    get_latest_frame_task.cancel()
 
 
 tags_metadata = [
