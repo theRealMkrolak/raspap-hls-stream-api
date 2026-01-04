@@ -15,10 +15,6 @@ async def background_task(app: FastAPI):
     Background task that runs in the background.
     """
     while True:
-        # We wrap the blocking read in a task and shield it.
-        # This allows us to wait for the thread to finish even if we are cancelled.
-        # This is CRITICAL to avoid a race condition where release() is called
-        # while read() is still executing in a thread (causing a segfault).
         read_task = asyncio.create_task(asyncio.to_thread(app.state.video_capture.read))
         try:
             ret, frame = await asyncio.shield(read_task)
