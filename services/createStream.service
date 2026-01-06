@@ -1,0 +1,15 @@
+[Unit]
+Description=Create Stream Service
+After=network.target mediamtx.service
+Wants=mediamtx.service
+
+[Service]
+User=max
+WorkingDirectory=/etc/raspap/api
+EnvironmentFile=/etc/raspap/api/.env
+ExecStart=./scripts/createStream.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

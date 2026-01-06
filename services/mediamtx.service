@@ -1,0 +1,13 @@
+[Unit]
+Description=MediaMTX Service
+After=network.target
+
+[Service]
+User=max
+WorkingDirectory=/etc/raspap/api
+ExecStart=/usr/local/bin/mediamtx mediamtx_config.yaml
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

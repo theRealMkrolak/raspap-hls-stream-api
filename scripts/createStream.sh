@@ -1,15 +1,6 @@
 #!/bin/bash
 # Optimized for Mac Camera -> MediaMTX
 
-# Check if the .env file exists
-if [ ! -f .env ]; then
-    echo "Error: .env file not found"
-    exit 1
-fi
-
-# Source the .env file
-source .env
-
 # Check if MediaMTX is running
 if ! lsof -i :8554 > /dev/null 2>&1; then
     echo "Error: MediaMTX is not running on port 8554"
