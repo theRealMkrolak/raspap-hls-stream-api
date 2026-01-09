@@ -1,6 +1,7 @@
+from collections.abc import AsyncGenerator
+
 from aiohttp import ClientSession
 from cv2 import imencode
-from typing import AsyncGenerator
 from fastapi import APIRouter, Request, status
 from fastapi.responses import Response, StreamingResponse
 
@@ -13,7 +14,7 @@ router = APIRouter(tags=["camera"])
 @router.get("/photo")
 async def photo(
     request: Request,
-    api_key: str = APIKeyDep,
+    _api_key: str = APIKeyDep,
 ) -> Response:
     frame = request.app.state.last_frame
     if frame is None:
@@ -30,7 +31,7 @@ async def photo(
 async def hls_proxy(
     request: Request,
     filename: str = "index.m3u8",
-    api_key: str = APIKeyDep,
+    _api_key: str = APIKeyDep,
 ) -> StreamingResponse:
     session: ClientSession = request.app.state.client_session
     query_params_string = "&".join(

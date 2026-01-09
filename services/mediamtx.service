@@ -5,7 +5,7 @@ After=network.target
 [Service]
 User=max
 WorkingDirectory=/etc/raspap/api
-ExecStart=/usr/local/bin/mediamtx mediamtx_config.yaml
+ExecStart=/usr/local/bin/mediamtx /etc/raspap/api/mediamtx_config.yml
 Restart=on-failure
 RestartSec=5
 

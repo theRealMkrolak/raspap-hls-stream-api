@@ -2,7 +2,7 @@
 # Optimized for Mac Camera -> MediaMTX
 
 # Check if MediaMTX is running
-if ! lsof -i :8554 > /dev/null 2>&1; then
+if ! (echo > /dev/tcp/127.0.0.1/8554) >/dev/null 2>&1; then
     echo "Error: MediaMTX is not running on port 8554"
     echo "Please start MediaMTX first: mediamtx"
     exit 1
@@ -26,10 +26,11 @@ if [ "$API_SYSTEM" == "mac" ]; then
         -f rtsp rtsp://localhost:8554/mystream
 elif [ "$API_SYSTEM" == "raspberry-pi" ]; then
     echo "Streaming from Raspberry Pi to MediaMTX..."
-    raspivid -o - -t 0 -w 1280 -h 720 -fps 30 -b 2000000 -g 30 | \
-    ffmpeg -re -ar 44100 -ac 2 -acodec pcm_s16le -f s16le -ac 2 -i /dev/zero \
-    -f h264 -i - -c:v copy -c:a aac -b:a 128k -f rtsp -rtsp_transport tcp \
-    rtsp://localhost:8554/stream
+    rpicam-vid -t 0 --inline --width 960 --height 540 --framerate 20 --codec h264 -o - | \
+    ffmpeg -hide_banner -loglevel warning \
+        -f h264 -i - \
+        -c:v copy \
+        -f rtsp -rtsp_transport tcp rtsp://localhost:8554/mystream
 else
     echo "Error: Unknown system: $API_SYSTEM"
     exit 1

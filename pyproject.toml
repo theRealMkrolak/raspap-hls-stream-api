@@ -1,3 +1,10 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["backend"]
+
 [project]
 name = "watch-camera"
 version = "0.1.0"
@@ -8,9 +15,8 @@ dependencies = [
     "pydantic>=2.12.5",
     "pydantic-settings>=2.12.0",
     "opencv-python>=4.12.0.88; sys_platform == 'darwin'",
-    "picamera2>=0.1.0; sys_platform == 'linux'",
+    "opencv-python-headless==4.10.0.84; sys_platform == 'linux'",
     "aiohttp>=3.13.2",
-    "opencv-python>=4.12.0.88",
     "loguru>=0.7.3",
     "aiofiles>=25.1.0",
 ]
@@ -37,44 +43,25 @@ pythonVersion = "3.12"
 # Type checking mode: "off", "basic", "standard", "strict"
 typeCheckingMode = "standard"
 
-# Report settings
-reportMissingImports = true
-reportMissingTypeStubs = false
-reportUnusedImport = "warning"
-reportUnusedClass = "warning"
-reportUnusedFunction = "warning"
-reportUnusedVariable = "warning"
-reportDuplicateImport = "warning"
-reportOptionalSubscript = "warning"
-reportOptionalMemberAccess = "warning"
-reportOptionalCall = "warning"
-reportOptionalIterable = "warning"
-reportOptionalContextManager = "warning"
-reportOptionalOperand = "warning"
-reportGeneralTypeIssues = "warning"
-reportIncompatibleMethodOverride = "warning"
-reportIncompatibleVariableOverride = "warning"
-reportInconsistentConstructor = "warning"
-reportInvalidStringEscapeSequence = "warning"
-reportUnknownMemberType = "warning"
-reportUnknownArgumentType = "warning"
-reportUnknownVariableType = "warning"
-reportUnknownLambdaType = "warning"
-reportUntypedFunctionDecorator = "warning"
-reportUntypedClassDecorator = "warning"
-reportUntypedBaseClass = "warning"
-reportUntypedNamedTuple = "warning"
-reportPrivateUsage = "warning"
-reportConstantRedefinition = "warning"
-reportOverlappingOverload = "error"
+[tool.ruff]
+target-version = "py312"
+line-length = 88
 
-# Pydantic-specific settings
-reportCallInDefaultInitializer = false
-reportPrivateImportUsage = "warning"
-
+[tool.ruff.lint]
+select = [
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # pyflakes
+    "I",     # isort
+    "B",     # flake8-bugbear
+    "C4",    # flake8-comprehensions
+    "UP",    # pyupgrade
+    "ARG",   # flake8-unused-arguments
+    "SIM",   # flake8-simplify
+    "ASYNC", # flake8-async
+]
 
 [tool.ruff.lint.isort]
 force-sort-within-sections = true
 known-first-party = ["backend"]
-force-single-line = false
-split-on-trailing-comma = true
+combine-as-imports = true

@@ -1,7 +1,7 @@
 [Unit]
 Description=Create Stream Service
 After=network.target mediamtx.service
-Wants=mediamtx.service
+Requires=mediamtx.service
 
 [Service]
 User=max

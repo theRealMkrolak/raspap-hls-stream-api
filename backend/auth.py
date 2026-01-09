@@ -1,12 +1,10 @@
-
-from fastapi import Cookie, Depends, HTTPException, Security
+from fastapi import Cookie, Depends, HTTPException, Security, status
 from fastapi.security.api_key import APIKeyHeader
-from starlette.status import HTTP_403_FORBIDDEN
 
 from .settings import settings
 
-
 api_key_header = APIKeyHeader(name="access_token", auto_error=False)
+
 
 async def get_api_key(
     api_key_header: str | None = Security(api_key_header),
@@ -17,14 +15,14 @@ async def get_api_key(
 
     if provided_key is None:
         raise HTTPException(
-            status_code=HTTP_403_FORBIDDEN, detail="403: Unauthorized"
+            status_code=status.HTTP_403_FORBIDDEN, detail="403: Unauthorized"
         )
 
     if provided_key == settings.raspap_api_key:
         return provided_key
     else:
         raise HTTPException(
-            status_code=HTTP_403_FORBIDDEN, detail="403: Unauthorized"
+            status_code=status.HTTP_403_FORBIDDEN, detail="403: Unauthorized"
         )
 
 

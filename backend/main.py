@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 from contextlib import asynccontextmanager
 
 from aiohttp import ClientSession
@@ -12,29 +13,55 @@ from .settings import settings
 
 async def background_task(app: FastAPI):
     """
-    Background task that runs in the background.
+    Background task that captures frames from the stream with automatic reconnection.
     """
+    video_capture: VideoCapture = app.state.video_capture
+    stream_url = f"{settings.mediamtx_hls_url}/index.m3u8"
+
     while True:
-        read_task = asyncio.create_task(asyncio.to_thread(app.state.video_capture.read))
+        # 1. Check if the capture is valid; if not, try to reconnect
+        if video_capture is None or not video_capture.isOpened():
+            if video_capture is not None:
+                video_capture.release()
+
+            video_capture = VideoCapture(stream_url)
+            app.state.video_capture = video_capture
+
+            if not video_capture.isOpened():
+                await asyncio.sleep(5)
+                continue
+
+        # 2. Try to read a frame
+        read_task = asyncio.create_task(asyncio.to_thread(video_capture.read))
         try:
-            ret, frame = await asyncio.shield(read_task)
+            ret, frame = await read_task
+
+            if not ret:
+                video_capture.release()
+                await asyncio.sleep(5)
+                continue
+
+            app.state.last_frame = frame
+            await asyncio.sleep(0.01)
+
         except asyncio.CancelledError:
-            await read_task
+            if video_capture is not None:
+                video_capture.release()
             raise
-
-        if not ret and frame is None:
-            break
-
-        app.state.last_frame = frame
-        await asyncio.sleep(0.01)
+        except Exception:
+            if video_capture is not None:
+                video_capture.release()
+            await asyncio.sleep(5)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
-    Creates and manages the aiohttp ClientSession and background tasks for the application lifespan.
+    Creates and manages the aiohttp ClientSession and
+    background tasks for the application lifespan.
     """
-    app.state.video_capture = VideoCapture(f"{settings.mediamtx_hls_url}/index.m3u8")
+    # Initialize with None to let background_task handle the first connection
+    app.state.video_capture = None
     app.state.last_frame = None
 
     async with ClientSession(raise_for_status=True) as session:
@@ -43,12 +70,14 @@ async def lifespan(app: FastAPI):
         yield
         await session.close()
 
+    # Cancel the background task and wait for it to clean up
     app.state.background_task.cancel()
-    try:
+    with contextlib.suppress(asyncio.CancelledError):
         await app.state.background_task
-    except asyncio.CancelledError:
-        pass
-    app.state.video_capture.release()
+
+    # Final cleanup check
+    if app.state.video_capture is not None:
+        app.state.video_capture.release()
 
 
 tags_metadata = [
