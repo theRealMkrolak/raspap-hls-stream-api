@@ -7,7 +7,7 @@ User=max
 WorkingDirectory=/etc/raspap/api
 ExecStart=/usr/local/bin/mediamtx /etc/raspap/api/mediamtx_config.yml
 Restart=on-failure
-RestartSec=5
+RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target

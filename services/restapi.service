@@ -1,7 +1,7 @@
 [Unit]
 Description=raspap-restapi
 After=network.target createStream.service
-Requires=createStream.service
+Wants=createStream.service
 
 [Service]
 User=max
