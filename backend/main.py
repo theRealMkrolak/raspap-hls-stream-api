@@ -7,6 +7,7 @@ from cv2 import VideoCapture
 from fastapi import FastAPI, status
 from fastapi.responses import Response
 
+from .administrative import router as administrative_router
 from .camera import router as camera_router
 from .settings import settings
 
@@ -98,9 +99,11 @@ app = FastAPI(
         "url": "https://opensource.org/licenses/MIT",
     },
     lifespan=lifespan,
+    debug=True,
 )
 
 app.include_router(camera_router)
+app.include_router(administrative_router)
 
 
 @app.get("/")

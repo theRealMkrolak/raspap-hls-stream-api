@@ -11,6 +11,16 @@ from .settings import settings
 router = APIRouter(tags=["camera"])
 
 
+@router.get("/start", status_code=status.HTTP_204_NO_CONTENT)
+async def start(_api_key: str = APIKeyDep) -> None:
+    pass
+
+
+@router.get("/stop", status_code=status.HTTP_204_NO_CONTENT)
+async def stop(_api_key: str = APIKeyDep) -> None:
+    pass
+
+
 @router.get("/photo")
 async def photo(
     request: Request,

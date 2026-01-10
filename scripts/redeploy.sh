@@ -23,12 +23,7 @@ else
     ./.venv/bin/pip install -r requirements.txt
 fi
 
-# 5. Restart services (The only destructive part)
-echo "Restarting services..."
-sudo systemctl restart mediamtx.service
-sudo systemctl restart createStream.service
-
-echo "Scheduling API restart..."
-(sleep 2 && sudo systemctl restart restapi.service) &
+echo "Running the service setups script"
+./serviceSetup
 
 echo "Upgrade to $LATEST_TAG successful!"
