@@ -1,7 +1,9 @@
+from typing import Annotated
+
 from fastapi import Cookie, Depends, HTTPException, Security, status
 from fastapi.security.api_key import APIKeyHeader
 
-from .settings import settings
+from backend.settings import settings
 
 api_key_header = APIKeyHeader(name="access_token", auto_error=False)
 
@@ -26,4 +28,4 @@ async def get_api_key(
         )
 
 
-APIKeyDep = Depends(get_api_key)
+APIKeyDep = Annotated[str, Depends(get_api_key)]

@@ -5,28 +5,25 @@ from cv2 import imencode
 from fastapi import APIRouter, Request, status
 from fastapi.responses import Response, StreamingResponse
 
-from .auth import APIKeyDep
-from .settings import settings
+from backend.dependencies.auth import APIKeyDep
+from backend.dependencies.camera import VideoCaptureDep
+from backend.settings import settings
 
 router = APIRouter(tags=["camera"])
 
 
-@router.get("/start", status_code=status.HTTP_204_NO_CONTENT)
-async def start(_api_key: str = APIKeyDep) -> None:
-    pass
-
-
-@router.get("/stop", status_code=status.HTTP_204_NO_CONTENT)
-async def stop(_api_key: str = APIKeyDep) -> None:
-    pass
-
-
 @router.get("/photo")
 async def photo(
-    request: Request,
-    _api_key: str = APIKeyDep,
+    _api_key: APIKeyDep,
+    video_capture: VideoCaptureDep,
 ) -> Response:
-    frame = request.app.state.last_frame
+    if video_capture is None:
+        return Response(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content="Camera not initialized",
+        )
+
+    _, frame = video_capture.read()
     if frame is None:
         return Response(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -40,8 +37,8 @@ async def photo(
 @router.get("/{filename:path}")
 async def hls_proxy(
     request: Request,
+    _api_key: APIKeyDep,
     filename: str = "index.m3u8",
-    _api_key: str = APIKeyDep,
 ) -> StreamingResponse:
     session: ClientSession = request.app.state.client_session
     query_params_string = "&".join(

@@ -2,14 +2,16 @@ import asyncio
 import contextlib
 from contextlib import asynccontextmanager
 
+from adafruit_max1704x import MAX17048
 from aiohttp import ClientSession
+import board
+import busio
 from cv2 import VideoCapture
-from fastapi import FastAPI, status
-from fastapi.responses import Response
+from fastapi import FastAPI, Response, status
 
-from .administrative import router as administrative_router
-from .camera import router as camera_router
-from .settings import settings
+from backend.api.v1.administrative import router as administrative_router
+from backend.api.v1.camera import router as camera_router
+from backend.settings import settings
 
 
 async def background_task(app: FastAPI):
@@ -61,9 +63,12 @@ async def lifespan(app: FastAPI):
     Creates and manages the aiohttp ClientSession and
     background tasks for the application lifespan.
     """
-    # Initialize with None to let background_task handle the first connection
+    # Hardware initialization
     app.state.video_capture = None
     app.state.last_frame = None
+
+    i2c = busio.I2C(board.SCL, board.SDA)
+    app.state.fuel_gauge = MAX17048(i2c)
 
     async with ClientSession(raise_for_status=True) as session:
         app.state.client_session = session

@@ -20,7 +20,7 @@ if command -v uv &> /dev/null; then
     uv sync
 else
     echo "Updating dependencies with pip..."
-    ./.venv/bin/pip install -r requirements.txt
+    ./.venv/bin/pip install -r pyproject.toml
 fi
 
 echo "Running the service setups script"

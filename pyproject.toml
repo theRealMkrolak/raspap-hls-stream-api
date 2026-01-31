@@ -19,6 +19,13 @@ dependencies = [
     "aiohttp>=3.13.2",
     "loguru>=0.7.3",
     "aiofiles>=25.1.0",
+    "adafruit-blinka>=8.69.0",
+    "adafruit-circuitpython-busdevice>=5.2.15",
+    "adafruit-circuitpython-max1704x>=1.0.15",
+    "adafruit-circuitpython-seesaw>=1.15.0",
+    "pydbus>=0.6.0",
+    "adafruit-circuitpython-ble>=8.3.5",
+    "adafruit-circuitpython-hid>=6.1.8",
 ]
 
 [dependency-groups]
